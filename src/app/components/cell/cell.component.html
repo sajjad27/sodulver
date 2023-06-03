@@ -1,0 +1,11 @@
+<textarea
+#c name="{{cell.name}}"
+oninput="oninput(this.value)"
+class="textarea"  
+rows="1"
+cols="2"
+maxlength="1"
+(blur)="onTouched($event)"
+placeholder="{{getPossibilitesText()}}"
+[(ngModel)]='value'>
+</textarea>

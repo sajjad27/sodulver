@@ -1,1 +1,51 @@
-/* You can add global styles to this file, and also import other style files */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    .input {
+        @apply rounded text-center p-1 text-gray-700 bg-background w-[33%] ring-1 ring-default-ring border-none text-3xl;
+    }
+
+    .input:focus {
+        @apply outline-none;
+    }
+
+    .textarea {
+        @apply rounded text-center text-gray-700 bg-background ring-1 ring-default-ring border-none text-3xl;
+    }
+
+    .textarea:focus {
+        @apply outline-none;
+    }
+
+    .box {
+        @apply w-[12.6rem];
+    }
+
+    .row {
+        @apply flex flex-row gap-1;
+    }
+
+    .textarea::placeholder {
+        @apply text-xs text-right pl-1 tracking-[1.2em];
+    }
+
+    .grid-index {
+        @apply text-2xl text-[#0057e4];
+    }
+
+    .index-col {
+        @apply flex flex-col justify-between;
+        padding: 2.4rem 0.5rem 1.5rem 0.5rem;
+    }
+
+    .index-row {
+        @apply flex flex-row w-full justify-between;
+        padding: 0px 1.8rem 0px 1.8rem;
+    }
+
+    .p-btn{
+        @apply mt-1 ml-1 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded;
+    }
+}

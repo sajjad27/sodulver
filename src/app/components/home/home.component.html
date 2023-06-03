@@ -1,0 +1,223 @@
+<div class="p-4">
+    <form [formGroup]="form" (keydown)="submitInWithEnter($event)">
+        <div class="flex flex-row bg-default-ring w-min gap-1">
+            <div class="index-col">
+                <p class="grid-index">0</p>
+                <p class="grid-index">1</p>
+                <p class="grid-index">2</p>
+                <p class="grid-index">3</p>
+                <p class="grid-index">4</p>
+                <p class="grid-index">5</p>
+                <p class="grid-index">6</p>
+                <p class="grid-index">7</p>
+                <p class="grid-index">8</p>
+            </div>
+            <div>
+
+                <div class="index-row">
+                    <p class="grid-index">0</p>
+                    <p class="grid-index">1</p>
+                    <p class="grid-index">2</p>
+                    <p class="grid-index">3</p>
+                    <p class="grid-index">4</p>
+                    <p class="grid-index">5</p>
+                    <p class="grid-index">6</p>
+                    <p class="grid-index">7</p>
+                    <p class="grid-index">8</p>
+                </div>
+                <div class="row">
+                    <div class="box">
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c00')"
+                            formControlName='c00'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c01')"
+                            formControlName='c01'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c02')"
+                            formControlName='c02'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c10')"
+                            formControlName='c10'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c11')"
+                            formControlName='c11'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c12')"
+                            formControlName='c12'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c20')"
+                            formControlName='c20'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c21')"
+                            formControlName='c21'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c22')"
+                            formControlName='c22'></app-cell>
+                    </div>
+                    <div class="box">
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c03')"
+                            formControlName='c03'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c04')"
+                            formControlName='c04'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c05')"
+                            formControlName='c05'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c13')"
+                            formControlName='c13'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c14')"
+                            formControlName='c14'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c15')"
+                            formControlName='c15'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c23')"
+                            formControlName='c23'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c24')"
+                            formControlName='c24'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c25')"
+                            formControlName='c25'></app-cell>
+                    </div>
+                    <div class="box">
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c06')"
+                            formControlName='c06'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c07')"
+                            formControlName='c07'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c08')"
+                            formControlName='c08'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c16')"
+                            formControlName='c16'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c17')"
+                            formControlName='c17'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c18')"
+                            formControlName='c18'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c26')"
+                            formControlName='c26'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c27')"
+                            formControlName='c27'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c28')"
+                            formControlName='c28'></app-cell>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="box">
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c30')"
+                            formControlName='c30'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c31')"
+                            formControlName='c31'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c32')"
+                            formControlName='c32'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c40')"
+                            formControlName='c40'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c41')"
+                            formControlName='c41'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c42')"
+                            formControlName='c42'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c50')"
+                            formControlName='c50'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c51')"
+                            formControlName='c51'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c52')"
+                            formControlName='c52'></app-cell>
+                    </div>
+                    <div class="box">
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c33')"
+                            formControlName='c33'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c34')"
+                            formControlName='c34'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c35')"
+                            formControlName='c35'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c43')"
+                            formControlName='c43'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c44')"
+                            formControlName='c44'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c45')"
+                            formControlName='c45'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c53')"
+                            formControlName='c53'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c54')"
+                            formControlName='c54'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c55')"
+                            formControlName='c55'></app-cell>
+                    </div>
+                    <div class="box">
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c36')"
+                            formControlName='c36'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c37')"
+                            formControlName='c37'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c38')"
+                            formControlName='c38'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c46')"
+                            formControlName='c46'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c47')"
+                            formControlName='c47'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c48')"
+                            formControlName='c48'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c56')"
+                            formControlName='c56'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c57')"
+                            formControlName='c57'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c58')"
+                            formControlName='c58'></app-cell>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="box">
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c60')"
+                            formControlName='c60'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c61')"
+                            formControlName='c61'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c62')"
+                            formControlName='c62'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c70')"
+                            formControlName='c70'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c71')"
+                            formControlName='c71'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c72')"
+                            formControlName='c72'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c80')"
+                            formControlName='c80'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c81')"
+                            formControlName='c81'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c82')"
+                            formControlName='c82'></app-cell>
+                    </div>
+                    <div class="box">
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c63')"
+                            formControlName='c63'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c64')"
+                            formControlName='c64'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c65')"
+                            formControlName='c65'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c73')"
+                            formControlName='c73'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c74')"
+                            formControlName='c74'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c75')"
+                            formControlName='c75'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c83')"
+                            formControlName='c83'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c84')"
+                            formControlName='c84'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c85')"
+                            formControlName='c85'></app-cell>
+                    </div>
+                    <div class="box">
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c66')"
+                            formControlName='c66'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c67')"
+                            formControlName='c67'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c68')"
+                            formControlName='c68'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c76')"
+                            formControlName='c76'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c77')"
+                            formControlName='c77'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c78')"
+                            formControlName='c78'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c86')"
+                            formControlName='c86'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c87')"
+                            formControlName='c87'></app-cell>
+                        <app-cell [focusedCellName]="focusedCellName" [cell]="getCell('c88')"
+                            formControlName='c88'></app-cell>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <h1 class="text-red-500" *ngIf="impossible">impossible to solve!</h1>
+    <!-- <button class="mt-1 ml-1 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        (click)="goToNext()">Next Step</button> -->
+    <button class="p-btn"
+        (click)="solve()">Solve</button>
+</div>
