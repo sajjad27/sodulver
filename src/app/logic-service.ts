@@ -14,24 +14,22 @@ export class LogicService {
     constructor() { }
 
     // fill val in the grid where the value is 100% sure
-    resolve(tableValues: any): Cell[][] {
-        let grid: Cell[][] = this.transformTo2D(tableValues)
-
+    resolve(grid: Cell[][]): Cell[][] {
+        this.impossible = false;
+        this.resolved = false;
+        this.iteration = 0
         ////// fill possibilities depending on, this should be done only once
         this.fillPossibilityForValDependOnExistingValues(grid);
         while (!this.resolved && !this.impossible) {
             this.iteration++;
             this.impossible = true;
-
-            grid = this.startCycle(grid);
+            this.startCycle(grid);
             this.resolved = this.isResolved(grid);
         }
-
         return grid
     }
 
-    private startCycle(grid: Cell[][]): Cell[][] {
-
+    startCycle(grid: Cell[][]) {
         this.fillMustValues(grid)
 
         this.fillCellHavingSinglePossibleValue(grid)
@@ -40,7 +38,94 @@ export class LogicService {
 
         this.removePossibilityFromOtherCellsIfGroupOfCellsHaveSamePossibilities(grid)
 
-        return grid;
+        this.removePossibilitiesByXWings(grid)
+
+        this.removePossibilitiesByXYWings(grid)
+
+        this.removeHiddenDouble(grid)
+        // this.removeHiddenTriple(grid)
+        // this.removeHiddenQuad(grid)
+
+    }
+
+    removeHiddenDouble(grid: Cell[][]) {
+        // remove for box only
+        let emptyCells: Cell[] = this.getEmptyCells(grid);
+        for (let cell1 of emptyCells) {
+            let startingPosition = this.getBoxStartingPosition(cell1.row, cell1.col);
+
+            let startingRow = +this.getTens(startingPosition);
+            let startingCol = +this.getUnit(startingPosition);
+            for (let row = startingRow; row <= startingRow + 2; row++) {
+                for (let col = startingCol; col <= startingCol + 2; col++) {
+                    let cell2 = grid[row][col]
+
+                    let isSameCell: boolean = (row === cell1.row && col === cell1.col)
+                    let cellHasNoValue: boolean = !this.isCellHasValue(grid, row, col)
+                    let commonCandidates = this.getCommonCandidates(cell1, cell2);
+                    let twoCommonCandidatesOnly = commonCandidates.length === 2
+
+
+
+                    let commonCandidatesOnlyExistsInPair: number[] = []
+                    for (let commonCandidate of commonCandidates) {
+                        let cellsForCandidate = this.getCellsByCandidatesInBox(commonCandidate, grid, startingPosition)
+                        if (cellsForCandidate.length === 2) {
+                            commonCandidatesOnlyExistsInPair.push(commonCandidate)
+                        }
+                    }
+                    if (cell1.row === 3 && cell1.col === 2
+                        && cell2.row === 5 && cell2.col === 0) {
+                        console.log(`isSameCell`, isSameCell);
+                        console.log(`cellHasNoValue`, cellHasNoValue);
+                        console.log(`commonCandidates`, commonCandidates);
+                        console.log(`commonCandidatesOnlyExistsInPair`, commonCandidatesOnlyExistsInPair);
+                    }
+                    if (!isSameCell &&
+                        cellHasNoValue &&
+                        commonCandidatesOnlyExistsInPair.length === 2
+                    ) {
+                        // console.log('=================');
+                        // console.log(`cell1`, cell1);
+                        // console.log(`cell2`, cell2);
+                        // console.log(`commonCandidate`, commonCandidates);
+                        this.removeAllCandidatesFromCellExcept(cell1, grid, commonCandidatesOnlyExistsInPair);
+
+                    }
+
+                }
+            }
+            //     for (let cell2 of emptyCells) {
+            //         let sameCell = cell1 === cell2
+            //         if (sameCell || !this.isIntersected2Cells(cell1, cell2)) {
+            //             continue;
+            //         }
+            //         let commonCandidate = this.getCommonCandidates(cell1, cell2);
+            //         if (commonCandidate.length === 2) {
+            //             console.log('=================');
+            //             console.log(`cell1`, cell1);
+            //             console.log(`cell2`, cell2);
+            //             console.log(`commonCandidate`, commonCandidate);
+            //         }
+            //     }
+        }
+
+    }
+
+    getCellsByCandidatesInBox(commonCandidate: number, grid: Cell[][], startingPosition: string): Cell[] {
+        let cellsHavingOnlyCandidatesInBox: Cell[] = []
+        // give me list of candidates and I will give you cells having the given gandidates (not only given candidates, cells might have other candidates)
+        let startingRow = +this.getTens(startingPosition);
+        let startingCol = +this.getUnit(startingPosition);
+        for (let row = startingRow; row <= startingRow + 2; row++) {
+            for (let col = startingCol; col <= startingCol + 2; col++) {
+                let cell = grid[row][col]
+                if (cell.possibilities.includes(commonCandidate)) {
+                    cellsHavingOnlyCandidatesInBox.push(cell)
+                }
+            }
+        }
+        return cellsHavingOnlyCandidatesInBox
     }
 
     fillMustValues(grid: Cell[][]) {
@@ -59,7 +144,7 @@ export class LogicService {
     fillCellHavingSinglePossibleValue(grid: Cell[][]) {
         for (let row = 1; row <= 8; row++) {
             for (let col = 1; col <= 8; col++) {
-                if (grid[row][col]?.possibilities?.length === 1 && !grid[row][col].value) {
+                if (grid[row][col].possibilities?.length === 1 && !grid[row][col].value) {
                     this.fillValueInCell(grid, row, col, grid[row][col].possibilities[0])
                 }
             }
@@ -159,6 +244,7 @@ export class LogicService {
     getSimilarPossibilityCellsInSameCol(grid: Cell[][], cellRow: number, cellCol: number): Cell[] | null {
         let similarPossibilityCellsCol: Cell[] | null = [grid[cellRow][cellCol]]
         for (let row = 0; row <= 8; row++) {
+            // console.log(`grid[row][cellCol]`, grid[row][cellCol]);
             let isSameCell: boolean = (row === cellRow)
             let cellHasNoValue: boolean = !this.isCellHasValue(grid, row, cellCol)
             if (!isSameCell &&
@@ -178,7 +264,7 @@ export class LogicService {
     removePossibilityFromOtherCellsIfGroupOfCellsHaveSamePossibilities(grid: Cell[][]) {
         this.removePossibilityFromBoxCellWhenGroupCellsHasSamePossibilities(grid);
         this.removePossibilityFromRowCellWhenGroupCellsHasSamePossibilities(grid);
-        // this.removePossibilityFromColCellWhenGroupCellsHasSamePossibilities(grid);
+        this.removePossibilityFromColCellWhenGroupCellsHasSamePossibilities(grid);
     }
 
     removePossibilityFromBoxCellWhenGroupCellsHasSamePossibilities(grid: Cell[][]) {
@@ -212,7 +298,7 @@ export class LogicService {
             let cellCol: number = +this.getUnitFromCellName(emptyCells[cellIndex].name);
             let getSimilarPossibilityCellsInSameCol: Cell[] | null = this.getSimilarPossibilityCellsInSameCol(grid, cellRow, cellCol)
             if (getSimilarPossibilityCellsInSameCol) {
-                this.removeListOfPossibilitiesFromColExcept(grid, cellRow, emptyCells[cellIndex].possibilities, getSimilarPossibilityCellsInSameCol)
+                this.removeListOfPossibilitiesFromColExcept(grid, cellCol, emptyCells[cellIndex].possibilities, getSimilarPossibilityCellsInSameCol)
             }
         }
     }
@@ -327,8 +413,9 @@ export class LogicService {
     }
 
     private fillValueInCell(grid: Cell[][], cellRow: number, cellCol: number, val: number) {
-        grid[+cellRow][+cellCol] = { ...(grid[+cellRow][+cellCol]), value: val };
+        grid[+cellRow][+cellCol] = { ...(grid[+cellRow][+cellCol]), value: val, puzzleNumber: false };
         this.impossible = false;
+
         this.removeAllPossibilities(grid, cellRow, cellCol, val);
     }
 
@@ -338,6 +425,14 @@ export class LogicService {
         let numOfRemovedCellRow: number = this.removePossibilitiesFromRow(grid, cellRow, val);
         let numOfRemovedCellCol: number = this.removePossibilitiesFromCol(grid, cellCol, val);
         return numOfRemovedCellBox + numOfRemovedCellRow + numOfRemovedCellCol
+    }
+
+    removeAllCandidatesFromCellExcept(cell: Cell, grid: Cell[][], candidates: number[]) {
+        for (let candidate = 0; candidate <= 9; candidate++) {
+            if (!candidates.includes(candidate)) {
+                this.removeValueFromPossibility(cell.row, cell.col, grid, candidate)
+            }
+        }
     }
 
     private removeListOfPossibilitiesFromBoxExcept(grid: Cell[][], cellRow: number, cellCol: number, vals: number[], exceptionCells: Cell[]): number {
@@ -403,9 +498,330 @@ export class LogicService {
         return numOfRemoveds;
     }
 
+    removePossibilitiesByXYWings(grid: Cell[][]) {
+        let emptyCells: Cell[] = this.getEmptyCells(grid);
+
+        for (let xCell of emptyCells) {
+            for (let yCell of emptyCells) {
+                let pivotCell: Cell | null = this.getPivotCell(xCell, yCell, grid)
+            }
+        }
+    }
+
+    getPivotCell(xCell: Cell, yCell: Cell, grid: Cell[][]): Cell | null {
+        if (xCell.possibilities.length !== 2) {
+            return null
+        }
+        let sameCell = xCell === yCell
+        if (yCell.possibilities.length !== 2 || sameCell) {
+            return null
+        }
+
+        let commonCandidate = this.getCommonCandidates(xCell, yCell);
+        // only one common candidate should be between xyCells
+        if (commonCandidate?.length !== 1) {
+            return null
+        }
+
+        if (this.cellsAreIntersecting(xCell, yCell)) {
+            return null;
+        }
+
+        let possiblePivotCells: Cell[] | null = this.getPossiblePivotCells(xCell, yCell, grid)
+        // if (xCell.row === 6 && xCell.col === 2 && yCell.row === 7 && yCell.col === 8) {
+        //     console.log(`helloo`, possiblePivotCells);
+        // }
+
+        if (possiblePivotCells) {
+            const commonElements = xCell.possibilities.filter(candidate => yCell.possibilities.includes(candidate));
+            let nonCommonCandidates: number[] = xCell.possibilities.concat(yCell.possibilities).
+                filter(candidate => !commonElements.includes(candidate));
+
+            for (let i = possiblePivotCells.length - 1; i >= 0; i--) {
+                let pivotCell: Cell = possiblePivotCells[i]
+                let isPivot = this.checkIfValidPivotCell(xCell, yCell, pivotCell, nonCommonCandidates)
+                if (isPivot) {
+                    console.log('==========================', '\n'
+                        , `xCell`, xCell.row, xCell.col, '\n'
+                        , `yCell`, yCell.row, yCell.col, '\n'
+                        , `possiblePivotCells`, possiblePivotCells, '\n'
+                        , `pivotCell`, pivotCell.row, pivotCell.col, '\n');
+
+                    let intersectCells: Cell[] = this.getIntersectCells(xCell, yCell, pivotCell, grid)
+                    intersectCells.forEach(intersected2Cell => {
+                        this.removeValueFromPossibility(intersected2Cell.row, intersected2Cell.col, grid, commonElements[0])
+                    })
+
+                    console.log(`intersectCells`, intersectCells);
+                }
+
+            }
+        }
+        return null
+    }
+    getCommonCandidates(xCell: Cell, yCell: Cell): number[] {
+        return xCell.possibilities.filter(candidate => yCell.possibilities.includes(candidate))
+    }
+
+    cellsAreIntersecting(xCell: Cell, yCell: Cell): boolean {
+        return this.cellsAreInSameBox(xCell, yCell) ||
+            this.cellsAreInSameRow(xCell, yCell) ||
+            this.cellsAreInSameCol(xCell, yCell)
+    }
+
+    getIntersectCells(xCell: Cell, yCell: Cell, pivotCell: Cell, grid: Cell[][]): Cell[] {
+        let intersectCells: Cell[] = []
+        let emptyCells: Cell[] = this.getEmptyCells(grid);
+        for (let intersectedCell of emptyCells) {
+            let isSameCell = intersectedCell === xCell || intersectedCell === yCell || intersectedCell === pivotCell
+
+            if (!isSameCell && this.isIntersected3Cells(xCell, yCell, intersectedCell)) {
+                intersectCells.push(intersectedCell)
+            }
+        }
+        return intersectCells
+    }
+
+    isIntersected3Cells(cell1: Cell, cell2: Cell, intersectedCell: Cell): boolean {
+        return this.isIntersected2Cells(cell1, intersectedCell) && this.isIntersected2Cells(cell2, intersectedCell)
+    }
+
+    isIntersected2Cells(cell1: Cell, cell2: Cell): boolean {
+        let sameRow = cell1.row === cell2.row
+        let sameCol = cell1.col === cell2.col
+        let sameBox = this.cellsAreInSameBox(cell1, cell2)
+        return sameRow || sameCol || sameBox
+    }
+
+    cellsAreInSameBox(cell1: Cell, cell2: Cell): boolean {
+        return this.getBoxStartingPosition(cell1.row, cell1.col) === this.getBoxStartingPosition(cell2.row, cell2.col)
+    }
+
+    cellsAreInSameRow(cell1: Cell, cell2: Cell): boolean {
+        return cell1.row === cell2.row
+    }
+
+    cellsAreInSameCol(cell1: Cell, cell2: Cell): boolean {
+        return cell1.col === cell2.col
+    }
+
+
+    checkIfValidPivotCell(xCell: Cell, yCell: Cell, pivotCell: Cell, nonCommonCandidates: number[]) {
+        // we know here that xCell & yCell are valid since they have only 2 candidates and are sharing only one candidate in between 
+        let isSameCell = pivotCell === xCell || pivotCell === yCell
+        let has2CandiatesOnly = pivotCell.possibilities.length === 2
+        if (isSameCell || !has2CandiatesOnly) {
+            return false
+        }
+        if (xCell.row === yCell.row && yCell.row === pivotCell.row
+            || xCell.col === yCell.col && yCell.col === pivotCell.col) {
+            return false
+        }
+
+        // non common candidates between xCell candidates and yCell candidates should be equal to the candidate of the pivot cell
+        let isValidPivot = this.arraysEqual(nonCommonCandidates, pivotCell.possibilities)
+        // if (xCell.col === 2 && xCell.row === 6 && yCell.col === 8 && yCell.row === 7) {
+        //     // console.log('xCell', xCell, 'yCell', yCell, 'pivottt: ', pivotCell, nonCommonCandidates, tmp);
+
+        // }
+        return isValidPivot;
+
+
+    }
+
+
+    getPossiblePivotCells(xCell: Cell, yCell: Cell, grid: Cell[][]): Cell[] | null {
+        let possiblePivotCells: Cell[] = []
+        let emptyCells = this.getEmptyCells(grid)
+        emptyCells.forEach(possiblePivotCell => {
+            if (this.isIntersected3Cells(xCell, yCell, possiblePivotCell)) {
+                possiblePivotCells.push(possiblePivotCell)
+            }
+        })
+        // let areInSameBoxRow = this.cellsAreInSameBoxRow(xCell, yCell)
+        // let areInSameBoxCol = xCell.col === yCell.col
+        // if (areInSameBoxRow || areInSameBoxCol) {
+        //     // possiblePivotCells = this.getEmptyCellsForBox(grid, xCell).concat(this.getEmptyCellsForBox(grid, yCell))
+
+        // } else {
+        //     let crossingCell1: Cell = grid[xCell.row][yCell.col]
+        //     let crossingCell2: Cell = grid[yCell.row][xCell.col]
+        //     possiblePivotCells = [crossingCell1, crossingCell2]
+        // }
+        return possiblePivotCells;
+    }
 
 
 
+
+    removePossibilitiesByXWings(grid: Cell[][]) {
+        this.removePossibilitiesByXWingsForRows(grid);
+        this.removePossibilitiesByXWingsForCols(grid);
+    }
+
+    removePossibilitiesByXWingsForRows(grid: Cell[][]) {
+        let xWingCells: { candidate: number, xwingCells: Cell[] }[] = this.getColsXWingCells(grid)
+        xWingCells.forEach(xWing => {
+            const rows = [...new Set(xWing.xwingCells.map(xWing => xWing.row))]; // [ 'A', 'B']
+
+            this.removeListOfPossibilitiesFromRowExcept(grid, rows[0], [xWing.candidate], xWing.xwingCells)
+            this.removeListOfPossibilitiesFromRowExcept(grid, rows[1], [xWing.candidate], xWing.xwingCells)
+
+        });
+    }
+
+    removePossibilitiesByXWingsForCols(grid: Cell[][]) {
+        let xWingCells: { candidate: number, xwingCells: Cell[] }[] = this.getRowsXWingCells(grid)
+        xWingCells.forEach(xWing => {
+            const columns = [...new Set(xWing.xwingCells.map(xWing => xWing.col))]; // [ 'A', 'B']
+
+            this.removeListOfPossibilitiesFromColExcept(grid, columns[0], [xWing.candidate], xWing.xwingCells)
+            this.removeListOfPossibilitiesFromColExcept(grid, columns[1], [xWing.candidate], xWing.xwingCells)
+
+        });
+    }
+
+    getRowsXWingCells(grid: Cell[][]): { candidate: number, xwingCells: Cell[] }[] {
+        let emptyCells: Cell[] = this.getEmptyCells(grid);
+        let xWingCells: { candidate: number, xwingCells: Cell[] }[] = []
+        emptyCells.forEach((cell) => {
+            cell.possibilities.forEach(candidate => {
+                if (!this.alreadyFound(xWingCells, candidate, cell)) {
+                    let cellsHasExactly2CandidatesInRow = this.getCellsIfRowHasExactly2Candidates(candidate, cell.row, grid)
+                    let xWingCellsForOneCandidate = this.getHorizontalSymmetricCells(cellsHasExactly2CandidatesInRow, candidate, grid)
+                    if (xWingCellsForOneCandidate) {
+                        xWingCells.push({ candidate: candidate, xwingCells: xWingCellsForOneCandidate })
+                    }
+                }
+            })
+        })
+        return xWingCells
+    }
+
+    getColsXWingCells(grid: Cell[][]): { candidate: number, xwingCells: Cell[] }[] {
+        let emptyCells: Cell[] = this.getEmptyCells(grid);
+        let xWingCells: { candidate: number, xwingCells: Cell[] }[] = []
+        emptyCells.forEach((cell) => {
+            cell.possibilities.forEach(candidate => {
+                if (!this.alreadyFound(xWingCells, candidate, cell)) {
+                    let cellsHasExactly2CandidatesInCol = this.getCellsIfColHasExactly2Candidates(candidate, cell.row, grid)
+                    let xWingCellsForOneCandidate = this.getVerticalSymmetricCells(cellsHasExactly2CandidatesInCol, candidate, grid)
+                    if (xWingCellsForOneCandidate) {
+                        xWingCells.push({ candidate: candidate, xwingCells: xWingCellsForOneCandidate })
+                    }
+                }
+            })
+        })
+        return xWingCells
+    }
+
+    alreadyFound(xWingCells: { candidate: number; xwingCells: Cell[]; }[], candidate: number, cell: Cell): boolean {
+        let found: boolean = false
+        xWingCells.forEach(xWing => {
+            if (xWing.candidate === candidate && xWing.xwingCells.includes(cell)) {
+                found = true
+            }
+
+        });
+        return found
+
+    }
+
+    getHorizontalSymmetricCells(cellsHasExactly2CandidatesInRow: Cell[] | null, candidate: number, grid: Cell[][]): Cell[] | null {
+        if (!cellsHasExactly2CandidatesInRow) {
+            return null
+        }
+
+        let xWingCells: Cell[] | null = null
+
+        for (let row = 0; row <= 8; row++) {
+            let cell1 = cellsHasExactly2CandidatesInRow[0]
+            let cell2 = cellsHasExactly2CandidatesInRow[1]
+
+            let xWingCell1 = grid[row][cell1.col]
+            let xWingCell2 = grid[row][cell2.col]
+            let areSameCells = cell1 === xWingCell1 || cell2 === xWingCell2
+            if (areSameCells) {
+                continue
+            }
+
+            let bothXWingsHasSameCandidates: boolean = xWingCell1.possibilities.includes(candidate) && xWingCell2.possibilities.includes(candidate)
+            let bothXWingsHaveExactly2Candidates: boolean = !!this.getCellsIfRowHasExactly2Candidates(candidate, row, grid)
+
+            if (bothXWingsHasSameCandidates && bothXWingsHaveExactly2Candidates) {
+                xWingCells = [cell1, cell2, xWingCell1, xWingCell2]
+            }
+
+
+        }
+        return xWingCells
+    }
+
+    getVerticalSymmetricCells(cellsHasExactly2CandidatesInCol: Cell[] | null, candidate: number, grid: Cell[][]): Cell[] | null {
+        if (!cellsHasExactly2CandidatesInCol) {
+            return null
+        }
+
+        let xWingCells: Cell[] | null = null
+
+        for (let col = 0; col <= 8; col++) {
+            let cell1 = cellsHasExactly2CandidatesInCol[0]
+            let cell2 = cellsHasExactly2CandidatesInCol[1]
+
+            let xWingCell1 = grid[cell1.row][col]
+            let xWingCell2 = grid[cell2.row][col]
+            let areSameCells = cell1 === xWingCell1 || cell2 === xWingCell2
+            if (areSameCells) {
+                continue
+            }
+
+            let bothXWingsHasSameCandidates: boolean = xWingCell1.possibilities.includes(candidate) && xWingCell2.possibilities.includes(candidate)
+            let bothXWingsHaveExactly2Candidates: boolean = !!this.getCellsIfColHasExactly2Candidates(candidate, col, grid)
+
+            if (bothXWingsHasSameCandidates && bothXWingsHaveExactly2Candidates) {
+                xWingCells = [cell1, cell2, xWingCell1, xWingCell2]
+            }
+
+
+        }
+        return xWingCells
+    }
+
+
+    getCellsIfRowHasExactly2Candidates(candidate: number, row: number, grid: Cell[][]): Cell[] | null {
+        let twoCellsSharingSameCandidateInRow: Cell[] = []
+        for (let col = 0; col <= 8; col++) {
+            if (grid[row][col].possibilities.includes(candidate)) {
+                twoCellsSharingSameCandidateInRow.push(grid[row][col]);
+            }
+        }
+        return twoCellsSharingSameCandidateInRow.length === 2 ? twoCellsSharingSameCandidateInRow : null
+    }
+
+    getCellsIfColHasExactly2Candidates(candidate: number, col: number, grid: Cell[][]): Cell[] | null {
+        let twoCellsSharingSameCandidateInCol: Cell[] = []
+        for (let row = 0; row <= 8; row++) {
+            if (grid[row][col].possibilities.includes(candidate)) {
+                twoCellsSharingSameCandidateInCol.push(grid[row][col]);
+            }
+        }
+        return twoCellsSharingSameCandidateInCol.length === 2 ? twoCellsSharingSameCandidateInCol : null
+    }
+
+    getCellsIfBoxHasExactly2Candidates(candidate: number, row: number, col: number, grid: Cell[][]): Cell[] | null {
+        let twoCellsSharingSameCandidateInBox: Cell[] = []
+        let startingPosition = this.getBoxStartingPosition(row, col);
+        let startingRow = +this.getTens(startingPosition);
+        let startingCol = +this.getUnit(startingPosition);
+        for (let row = startingRow; row <= startingRow + 2; row++) {
+            for (let col = startingCol; col <= startingCol + 2; col++) {
+                if (grid[row][col].possibilities.includes(candidate)) {
+                    twoCellsSharingSameCandidateInBox.push(grid[row][col]);
+                }
+            }
+        }
+        return twoCellsSharingSameCandidateInBox.length === 2 ? twoCellsSharingSameCandidateInBox : null
+    }
 
     private removePossibilitiesFromRow(grid: Cell[][], cellRow: number, val: number): number {
         let numOfRemoveds: number = 0;
@@ -430,14 +846,6 @@ export class LogicService {
         return numOfRemoveds;
     }
 
-    private removeListOfPossibilitiesFromCol(grid: Cell[][], cellCol: number, vals: number[]): number {
-        let numOfRemoveds: number = 0;
-        vals.forEach(val => {
-            numOfRemoveds += this.removePossibilitiesFromCol(grid, cellCol, val);
-        })
-        return numOfRemoveds;
-    }
-
 
     private hasUniquePossibility(cellRow: number, cellCol: number, val: number, grid: Cell[][]): boolean {
         // check if row, col and box has no possibility 
@@ -454,6 +862,7 @@ export class LogicService {
     }
 
     transformTo2D(tableValues: any): Cell[][] {
+        // finalPuzzle is to determine the colors, if finalPuzzle is true, then color only cells
 
         let grid: Cell[][] = [];
 
@@ -462,7 +871,8 @@ export class LogicService {
             for (let col = 0; col <= 8; col++) {
                 let index = row + '' + col
                 let cellName = 'c' + index;
-                let cell: Cell = { index: index, name: cellName, value: tableValues[cellName], possibilities: [], row: row, col: col }
+                let value = tableValues[cellName] ? +tableValues[cellName] : null
+                let cell: Cell = { index: index, name: cellName, value: value, possibilities: [], row: row, col: col, puzzleNumber: true }
                 grid[row][col] = cell
             }
         }
@@ -554,7 +964,21 @@ export class LogicService {
         return false;
     }
 
-    private getBoxStartingPosition(cellRow: number, cellCol: number): string {
+    cellsAreInSameBoxRow(cell1: Cell, cell2: Cell): boolean {
+        return this.cellsAreInSameBoxDirection(cell1.row, cell2.row)
+    }
+
+    cellsAreInSameBoxCol(cell1: Cell, cell2: Cell): boolean {
+        return this.cellsAreInSameBoxDirection(cell1.col, cell2.col)
+    }
+
+    cellsAreInSameBoxDirection(cell1Row: number, cell2Row: number): boolean {
+        let startingPosition1 = Math.floor((cell1Row) / 3) * 3
+        let startingPosition2 = Math.floor((cell2Row) / 3) * 3
+        return startingPosition1 === startingPosition2
+    }
+
+    getBoxStartingPosition(cellRow: number, cellCol: number): string {
         let row = Math.floor((cellRow) / 3) * 3
         let col = Math.floor((cellCol) / 3) * 3
         let startingPosition: string = row + '' + col
@@ -574,11 +998,27 @@ export class LogicService {
         return emptyCells;
     }
 
-    private getTens(cellIndex: string): string {
+    getEmptyCellsForBox(grid: Cell[][], cell: Cell): Cell[] {
+        let emptyCells: Cell[] = []
+        let startingPosition = this.getBoxStartingPosition(cell.row, cell.col);
+
+        let startingRow = +this.getTens(startingPosition);
+        let startingCol = +this.getUnit(startingPosition);
+        for (let row = startingRow; row <= startingRow + 2; row++) {
+            for (let col = startingCol; col <= startingCol + 2; col++) {
+                if (!grid[row][col].value) {
+                    emptyCells.push(grid[row][col])
+                }
+            }
+        }
+        return emptyCells;
+    }
+
+    getTens(cellIndex: string): string {
         return Math.floor(+cellIndex / 10) + ''
     }
 
-    private getUnit(cellIndex: string): string {
+    getUnit(cellIndex: string): string {
         return (+cellIndex % 10) + '';
     }
 
@@ -635,6 +1075,23 @@ export class LogicService {
         let unit = this.getUnit(num)
         let tens = this.getTens(num)
         return (+tens - 1) + unit
+    }
+
+
+    arraysEqual(array1: any[], array2: any[]) {
+        if (array1 === array2) return true;
+        if (array1 == null || array2 == null) return false;
+        if (array1.length !== array2.length) return false;
+
+        const sortedArray1 = array1.slice().sort();
+        const sortedArray2 = array2.slice().sort();
+
+        for (let i = 0; i < sortedArray1.length; i++) {
+            if (sortedArray1[i] !== sortedArray2[i]) {
+                return false; // Elements at index i are different, not equal
+            }
+        }
+        return true;
     }
 
 

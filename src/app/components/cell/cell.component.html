@@ -1,11 +1,19 @@
-<textarea
-#c name="{{cell.name}}"
-oninput="oninput(this.value)"
-class="textarea"  
-rows="1"
-cols="2"
-maxlength="1"
-(blur)="onTouched($event)"
-placeholder="{{getPossibilitesText()}}"
-[(ngModel)]='value'>
-</textarea>
+<div role="status" [ngClass]="{'space-y-4.5 animate-pulse max-w-lg': skeleton}">
+    <div [ngClass]="{'flex items-center w-full space-x-4': skeleton}">
+        <textarea
+        #c name="{{cell.name}}"
+        [attr.name]="cell.name"
+        class="textarea"  
+        rows="1"
+        cols="2"
+        maxlength="1"
+        [ngClass]="{'text-lime-900': !!cell.puzzleNumber , 
+            'text-lime-500' : !cell.puzzleNumber, 
+            'bg-primary-50 dark:bg-primary-500 pb-1 mb-1 border-none': skeleton }"
+        placeholder="{{getPossibilitesText()}}"
+        (blur)="onTouched($event)"
+        (input)="oninput($event)"
+        [(ngModel)]="value">
+        </textarea>
+    </div>
+</div>

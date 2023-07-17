@@ -21,12 +21,13 @@ export class CellComponent implements ControlValueAccessor, OnChanges {
 
   @Input() cell!: Cell;
   @Input() focusedCellName: string | undefined;
+  @Input() skeleton: boolean | undefined;
 
   control!: FormControl;
 
   @ViewChild('c') c!: ElementRef;
 
-  constructor(private injector: Injector, private logicService: LogicService) { }
+  constructor(private injector: Injector) { }
 
   onChange: any = () => { }
   onTouch: any = () => { }
@@ -67,7 +68,7 @@ export class CellComponent implements ControlValueAccessor, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['focusedCellName']?.currentValue === this.cell.name) {
-      this.c.nativeElement.focus()
+      this.c?.nativeElement?.focus()
     }
   }
 
@@ -82,6 +83,9 @@ export class CellComponent implements ControlValueAccessor, OnChanges {
   }
 
   getPossibilitesText(): string {
+    if (this.skeleton) {
+      return ''
+    }
     let result: string = '{1}{2}{3} {4}{5}{6} {7}{8}{9}'
     for (let index in this.cell.possibilities) {
       let val: number = this.cell.possibilities[index];
@@ -91,14 +95,20 @@ export class CellComponent implements ControlValueAccessor, OnChanges {
     return result.substring(0, result.length);
   }
 
-  getVal(){
-    if(this.value){
+  getVal() {
+    if (this.value) {
       return this.value
     }
     return;
   }
 
-  oninput(val: any){
-    val=val.replace(/[^1-9]/g,'');val = val.replace(/\n/g,'')
+  oninput($event: any) {
+    let numbersOnlyVal = null
+    if ($event.data) {
+      numbersOnlyVal = $event.data.replace(/[^0-9]/g, '')
+    }
+    this.value = numbersOnlyVal
+    this.val = numbersOnlyVal
+    this.c.nativeElement.value = numbersOnlyVal;
   }
 }
